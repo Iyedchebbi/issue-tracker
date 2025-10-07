@@ -10,6 +10,7 @@ import { useState } from "react";
 import {zodResolver} from '@hookform/resolvers/zod';
 import { createIssueSchema } from "@/app/validationSchemas";
 import { z } from "zod";
+import ErrorMessages from "@/app/components/ErrorMessages";
 type IssueForm = z.infer<typeof createIssueSchema>;
 
 // dynamically import SimpleMDE only on the client
@@ -43,13 +44,13 @@ const NewIssuePage = () => {
             <input placeholder="Title" {...register("title")} />
         </TextField.Slot>
     </TextField.Root>
-    {errors.title && <Text color="red" as="p">{errors.title.message}</Text>}
+    <ErrorMessages>{errors.title?.message}</ErrorMessages>
     <Controller
       control={control}
       name="description"
       render={({ field }) => <SimpleMDE placeholder="Description" {...field} />}
     />
-    {errors.description && <Text color="red" as="p">{errors.description.message}</Text>}
+    <ErrorMessages>{errors.description?.message}</ErrorMessages>
     <Button>Submit New Issue</Button>
     </form>
     
