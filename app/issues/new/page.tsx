@@ -26,23 +26,30 @@ const NewIssuePage = () => {
     resolver: zodResolver(createIssueSchema)  ,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const onSubmit = handleSubmit(async (data) => {
+        try {
+           setIsSubmitting(true);
+           await axios.post('/api/issues',data).then(() => {
+           router.push('/issues');
+        });
+        } catch (error) {
+           setIsSubmitting(false);
+           setError('Failed to create issue. Please try again.');
+      } 
+    })
+
+
+    
   return (
     <div className="max-w-xl">
       {error && <Callout.Root color ="red" className="mb-5" >  
         <Callout.Text>{error}</Callout.Text>      
     </Callout.Root>}
-    <form className='space-y-1' onSubmit={handleSubmit(async (data) => {
-      try {
-        setIsSubmitting(true);
-        await axios.post('/api/issues',data).then(() => {
-          router.push('/issues');
-        });
-      } catch (error) {
-        setIsSubmitting(false);
-        setError('Failed to create issue. Please try again.');
-      } 
-      
-    })}  >
+
+    <form 
+      className='space-y-1' 
+      onSubmit={onSubmit}
+    >
     <TextField.Root>
         <TextField.Slot>
             <input placeholder="Title" {...register("title")} />
