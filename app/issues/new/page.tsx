@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from "next/dynamic";
-import { Text, Button, Callout, TextField } from "@radix-ui/themes";
+import { Text, Button, Callout, TextField} from "@radix-ui/themes";
 import "easymde/dist/easymde.min.css";
 import { useForm, Controller,SubmitHandler } from "react-hook-form"
 import axios from "axios";
@@ -9,8 +9,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {zodResolver} from '@hookform/resolvers/zod';
 import { createIssueSchema } from "@/app/validationSchemas";
-import { z } from "zod";
+import { set, z } from "zod";
 import ErrorMessages from "@/app/components/ErrorMessages";
+import Spinner from "@/app/components/Spinner";
 type IssueForm = z.infer<typeof createIssueSchema>;
 
 // dynamically import SimpleMDE only on the client
@@ -24,6 +25,7 @@ const NewIssuePage = () => {
   const {register,control,handleSubmit ,formState : {errors}} = useForm<IssueForm>({
     resolver: zodResolver(createIssueSchema)  ,
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   return (
     <div className="max-w-xl">
       {error && <Callout.Root color ="red" className="mb-5" >  
@@ -31,10 +33,12 @@ const NewIssuePage = () => {
     </Callout.Root>}
     <form className='space-y-1' onSubmit={handleSubmit(async (data) => {
       try {
+        setIsSubmitting(true);
         await axios.post('/api/issues',data).then(() => {
           router.push('/issues');
         });
       } catch (error) {
+        setIsSubmitting(false);
         setError('Failed to create issue. Please try again.');
       } 
       
@@ -51,7 +55,7 @@ const NewIssuePage = () => {
       render={({ field }) => <SimpleMDE placeholder="Description" {...field} />}
     />
     <ErrorMessages>{errors.description?.message}</ErrorMessages>
-    <Button>Submit New Issue</Button>
+    <Button disabled={isSubmitting}>Submit New Issue {isSubmitting && <Spinner />}</Button>
     </form>
     
   </div>
